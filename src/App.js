@@ -1,4 +1,5 @@
 import Todo from "./Components/Todo";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 function App() {
