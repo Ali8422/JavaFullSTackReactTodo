@@ -4,6 +4,7 @@ export default function Todo() {
   const [text, setText] = useState("");
   const [todos, setTodos] = useState([]);
   const [editingId, setEditingId] = useState(null);
+  const [editingText, setEditText] = useState("");
 
   function handleAddTodos() {
     if (text.trim() === "") return;
@@ -13,6 +14,21 @@ export default function Todo() {
     setText("");
   }
 
+  function handleEditStart(id, currentText) {
+    setEditingId(id);
+    setEditText(currentText);
+  }
+
+  function handleEditSave(id) {
+    if (editingText.trim() === "") return;
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, text: editingText.trim() } : todo
+      )
+    );
+    setEditingId(null);
+    setEditText("");
+  }
   function handleUpdateTodos(id) {
     setTodos(
       todos.map((todo) =>
@@ -51,21 +67,56 @@ export default function Todo() {
             key={todo.id}
             className="d-flex justify-content-between align-items-center py-2"
           >
-            <span
-              onClick={() => handleUpdateTodos(todo.id)}
-              className={`text-black ${
-                todo.completed ? "text-decoration-line-through" : ""
-              }`}
-              style={{ cursor: "pointer" }}
-            >
-              {todo.text}
-            </span>
-            <button
-              onClick={() => handleDeleteTodos(todo.id)}
-              className="btn btn-sm btn-outline-danger"
-            >
-              ❌
-            </button>
+            {/* {EDIT MODE} */}
+            {editingId === todo.id ? (
+              <div>
+                <input
+                  value={editingText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleEditSave(todo.id);
+                    if (e.key === "Escape") {
+                      setEditingId(null);
+                      setEditText("");
+                    }
+                  }}
+                  className="form control form control-sm me-2"
+                  autoFocus
+                />
+                <button
+                  onClick={() => handleEditSave(todo.id)}
+                  className="btn btn-outline-success btn-sm"
+                >
+                  ✅
+                </button>
+              </div>
+            ) : (
+              <>
+                <span
+                  onClick={() => handleUpdateTodos(todo.id)}
+                  className={`text-black ${
+                    todo.completed ? "text-decoration-line-through" : ""
+                  }`}
+                  style={{ cursor: "pointer" }}
+                >
+                  {todo.text}
+                </span>
+                <div>
+                  <button
+                    onClick={() => handleEditStart(todo.id, todo.text)}
+                    className="btn btn-sm btn-outline-primary me-1"
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    onClick={() => handleDeleteTodos(todo.id)}
+                    className="btn btn-sm btn-outline-danger"
+                  >
+                    ❌
+                  </button>
+                </div>
+              </>
+            )}
           </li>
         ))}
       </ul>
